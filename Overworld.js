@@ -55,4 +55,3 @@ class Overworld {
         mc.src = "/images/characters/people/hero.png";
     }
 }
-
