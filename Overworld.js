@@ -8,7 +8,6 @@ class Overworld {
 
     startGameLoop() {
         const step = () => {
-
             //Clear screen
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                     
@@ -18,24 +17,27 @@ class Overworld {
             //Draw Game objects
             Object.values(this.map.gameObjects).forEach(object =>{
                 object.update({
-                    
-                })
+                    arrow: this.directionInput.direction
+                });
                 object.sprite.draw(this.ctx);
             }) 
             
             //Draw upper layer
             this.map.drawUpperImage(this.ctx);
            
-            requestAnimationFrame(() => {
-                step();
-            })
+            requestAnimationFrame(step);
         }
         step();
     }
+
     init(){
         this.map = new OverworldMap(
             window.OverworldMaps.DemoRoom
         );
+
+        this.directionInput = new DirectionInput();
+        this.directionInput.init();
+        
         this.startGameLoop();
     }
 }
