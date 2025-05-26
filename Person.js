@@ -16,31 +16,47 @@ class Person extends GameObject {
   }
 
   update(state) {
-    this.updatePostion();
-    this.updateSprite(state);
+    if(this.movingProgressRemaining > 0) {
+      this.updatePostion();
+    } else {
 
-    if (this.isPlayerControlled && this.movingProgressRemaining === 0 && state.arrow){
-      this.direction = state.arrow;
+      //more walking states
+      
+      //we can move and are moving
+      if (this.isPlayerControlled && state.arrow){
+        this.startBehavior(state, {
+          type: "walk",
+          direction: state.arrow
+        })
+      }
+      this.updateSprite(state);
+    }
+  }
+
+  startBehavior(state, behavior) {
+    //where and how to walk
+    this.direction = behavior.direction;
+    if(behavior.type === "walk") {
+      //no walking over illegal stuff
+      if (state.map.isSpaceTaken(this.x, this.y, this.direction)) {
+        return;
+      }
+      //ready to walk
       this.movingProgressRemaining = 16;
     }
   }
-
+  
   updatePostion() {
-    if(this.movingProgressRemaining > 0) {
-      const [property, change] = this.directionUpdate[this.direction];
-      this[property] += change;
-      this.movingProgressRemaining -= 1;
-    }
+        const [property, change] = this.directionUpdate[this.direction];
+        this[property] += change;
+        this.movingProgressRemaining -= 1;
   }
 
-  updateSprite(state){
-    if (this.isPlayerControlled && this.movingProgressRemaining === 0 && !state.arrow){
-      this.sprite.setAnimation("idle-"+this.direction);
-    }
-    
-
+  updateSprite(){
     if(this.movingProgressRemaining > 0){
       this.sprite.setAnimation("walk-"+this.direction);
+      return;
     }
+    this.sprite.setAnimation("idle-"+this.direction);
   }
 }
