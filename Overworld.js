@@ -12,16 +12,18 @@ class Overworld {
             //Clear screen
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                     
-            //Draw lower map
+            //Draw lower layer
             this.map.drawLowerImage(this.ctx);
 
             //Draw Game objects
             Object.values(this.map.gameObjects).forEach(object =>{
-                object.x += 0.02;
+                object.update({
+                    
+                })
                 object.sprite.draw(this.ctx);
             }) 
             
-            //Draw upper map
+            //Draw upper layer
             this.map.drawUpperImage(this.ctx);
            
             requestAnimationFrame(() => {
@@ -31,9 +33,8 @@ class Overworld {
         step();
     }
     init(){
-        // console.log("Launching Overworld :",this);
         this.map = new OverworldMap(
-            window.OverworldMaps.Kitchen
+            window.OverworldMaps.DemoRoom
         );
         this.startGameLoop();
     }
