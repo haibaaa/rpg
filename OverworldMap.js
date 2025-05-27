@@ -8,6 +8,8 @@ class OverworldMap {
 
     this.upperImage = new Image();
     this.upperImage.src = config.upperSrc;   
+
+    this.isCutScenePlaying = false;
   }
 
   drawLowerImage(ctx, cameraPerson) {
@@ -24,17 +26,33 @@ class OverworldMap {
   }
   
   mountObjects() {
-    Object.values(this.gameObjects).forEach(o => {
-      o.mount(this);
+    Object.keys(this.gameObjects).forEach(key => {
+      let object = this.gameObjects[key];
+      object.id = key;
+      object.mount(this);
     })    
   }
     
+  async startCutscene(events) {
+    this.isCutScenePlaying = true;
+
+    for(let i=0; i<events.length; i++) {
+      const eventHandler = new OverworldEvent({
+        event: events[i],
+        map:this,
+      })
+      await eventHandler.init();
+    }
+    
+    this.isCutScenePlaying = false;
+  }
+  
   addWall(x,y) {
     this.walls[`${x},${y}`] = true;
   }
   
   removeWall(x,y) {
-    delete this.walls[`${x},${y}`]
+    delete this.walls[`${x},${y}`];
   }
 
   moveWall(wasX,wasY,direction) {
@@ -53,10 +71,28 @@ class OverworldMap {
         x:utils.withGrid(5),
         y:utils.withGrid(6)
       }),
-      npc: new Person({
+      npcA: new Person({
         x:utils.withGrid(7),
         y:utils.withGrid(8),
-        src:"/images/characters/people/npc1.png"
+        src:"/images/characters/people/npc1.png",
+        behaviorLoop: [
+          {type: "stand", direction: "up", time: 800},
+          {type: "stand", direction: "down", time: 800},
+          {type: "stand", direction: "left", time: 800},
+          {type: "stand", direction: "right", time: 800},
+        ]
+      }),
+      npcB: new Person({
+        x:utils.withGrid(2),
+        y:utils.withGrid(7),
+        src:"/images/characters/people/npc2.png",
+        behaviorLoop: [
+          {type: "walk", direction: "left"},
+          {type: "stand", direction: "up", time: 800},
+          {type: "walk", direction: "down"},
+          {type: "walk", direction: "right"},
+          {type: "walk", direction: "up"},
+        ]
       }),
     },
     walls: {

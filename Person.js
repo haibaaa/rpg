@@ -23,7 +23,7 @@ class Person extends GameObject {
       //more walking states
       
       //we can move and are moving
-      if (this.isPlayerControlled && state.arrow){
+      if (!state.map.isCutscenePlaying && this.isPlayerControlled && state.arrow){
         this.startBehavior(state, {
           type: "walk",
           direction: state.arrow
@@ -36,13 +36,27 @@ class Person extends GameObject {
   startBehavior(state, behavior) {
     //where and how to walk
     this.direction = behavior.direction;
+
     if(behavior.type === "walk") {
       //no walking over illegal stuff
       if (state.map.isSpaceTaken(this.x, this.y, this.direction)) {
+        behavior.retry && setTimeout(() => {
+          this.startBehavior(state, behavior);
+        },10)
         return;
       }
       //ready to walk
+      state.map.moveWall(this.x, this.y, this.direction);
       this.movingProgressRemaining = 16;
+      this.updateSprite(state);
+    }
+
+    if(behavior.type === "stand"){
+      setTimeout(() => {
+        utils.emitEvent("PersonStandComplete", {
+          whoId: this.id
+        });
+      }, behavior.time)
     }
   }
   
@@ -50,6 +64,13 @@ class Person extends GameObject {
         const [property, change] = this.directionUpdate[this.direction];
         this[property] += change;
         this.movingProgressRemaining -= 1;
+
+        if (this.movingProgressRemaining === 0) {
+          //finished walking
+          utils.emitEvent("PersonWalkingComplete", {
+            whoId: this.id
+          })
+        }
   }
 
   updateSprite(){
