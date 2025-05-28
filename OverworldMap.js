@@ -3,6 +3,8 @@ class OverworldMap {
     this.gameObjects = config.gameObjects;
     this.walls = config.walls || {};
     
+    this.cutSceneSpaces = config.cutSceneSpaces || {};
+    
     this.lowerImage = new Image();
     this.lowerImage.src = config.lowerSrc;
 
@@ -49,6 +51,23 @@ class OverworldMap {
     Object.values(this.gameObjects).forEach(object => object.doBehaviorEvent(this));
   }
   
+  checkForActionCutscene() {
+    const hero = this.gameObjects["hero"];
+    const nextCoords = utils.nextPosition(hero.x, hero.y, hero.direction);
+    const match = Object.values(this.gameObjects).find(object => {
+      return `${object.x},${object.y}` === `${nextCoords.x},${nextCoords.y}`
+    });
+    if (!this.isCutScenePlaying && match && match.talking.length) {
+      this.startCutscene(match.talking[0].events);
+    }
+  }
+
+  checkForFootstepCutscene() {
+    const hero = this.gameObjects["hero"];    
+    const match = this.cutSceneSpaces[ `${hero.x},${hero.y}` ]
+    console.log({match});
+  }
+  
   addWall(x,y) {
     this.walls[`${x},${y}`] = true;
   }
@@ -82,6 +101,14 @@ class OverworldMap {
           {type: "stand", direction: "down", time: 800},
           {type: "stand", direction: "left", time: 800},
           {type: "stand", direction: "right", time: 800},
+        ],
+        talking: [
+          {
+            events: [
+            { type: "textMessage", text: "Hi!", faceHero: "npcA"},
+            { type: "textMessage", text: "Now go away"},
+            ]
+          }
         ]
       }),
       npcB: new Person({
@@ -102,6 +129,16 @@ class OverworldMap {
       [utils.asGridCoord(8,6)]: true,
       [utils.asGridCoord(7,7)]: true,
       [utils.asGridCoord(8,7)]: true,
+    },
+    cutSceneSpaces: {
+      [utils.asGridCoord(7,4)]: [
+        {
+          events: [
+            {who: "npcB", type: "walk", direction: "down"},
+            { type: "textMessage", text: "no buoy!", faceHero: "npcB"},
+          ] 
+        }
+      ]
     }
   },
   Kitchen: {
