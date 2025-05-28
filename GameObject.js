@@ -29,7 +29,7 @@ class GameObject {
 
     async doBehaviorEvent(map) {
         //override behavior loop
-        if (map.isCutScenePlaying || this.behaviorLoop.length === 0 || this.isStanding) {
+        if (map.isCutscenePlaying || this.behaviorLoop.length === 0 || this.isStanding) {
             return;
         }
 

@@ -61,11 +61,16 @@ class Overworld {
         });
     }
     
-    init(){
+    startMap(mapConfig) {
         this.map = new OverworldMap(
-            window.OverworldMaps.DemoRoom
+            mapConfig
         );
+        this.map.overworld = this;
         this.map.mountObjects();
+    }
+    
+    init(){
+        this.startMap(window.OverworldMaps.DemoRoom);
 
         this.bindActionInput();
         this.bindHeroPositionCheck();
